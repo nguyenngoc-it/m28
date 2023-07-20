@@ -1,0 +1,187 @@
+
+products
+    id
+    tenant_id
+    code
+    name
+    description
+    image
+    images
+    category_id
+    unit_id
+
+skus
+    id
+    tenant_id
+    product_id
+    unit_id
+    code
+    name
+    barcode
+    options
+    tax
+    cost_price
+    wholesale_price
+    retail_price
+    stock
+
+stocks
+    id
+    tenant_id
+    product_id
+    sku_id
+    warehouse_id
+    warehouse_area_id
+    quantity
+
+stock_logs
+    stock_id
+    action IMPORT ORDER EXPORT CANCEL
+    quantity
+    object ORDER.123
+    payload
+    creator_id
+
+units
+    id
+    tenant_id
+    code
+    name
+
+categories
+    id
+    tenant_id
+    parent_id
+    code
+    name
+    position
+
+warehouses
+    id
+    tenant_id
+    code
+    name
+    description
+    country_id
+    province_id
+    district_id
+    ward_id
+    address
+
+warehouse_areas
+    id
+    tenant_id
+    warehouse_id
+    code
+    name
+    description
+
+merchants
+    id
+    tenant_id
+    name
+    phone
+    address
+    description
+
+customers
+    id
+    tenant_id
+    merchant_id
+    code
+    name
+    phone
+    address
+    description
+
+customer_addresses
+    id
+    tenant_id
+    merchant_id
+    customer_id
+    code
+    name
+    phone
+    address
+
+sales
+    id
+    tenant_id
+    merchant_id
+    username
+    email
+
+orders
+    id
+    tenant_id
+    merchant_id
+    code
+    status
+    order_amount
+    discount_amount
+    shipping_amount
+    total_amount
+    paid_amount
+    debit_amount
+    receiver_name
+    receiver_phone
+    receiver_address
+    receiver_note
+    intended_delivery_at
+    payment_type
+    description
+    customer_id
+    customer_address_id
+    sale_id
+
+order_skus
+    id
+    tenant_id
+    order_id
+    sku_id
+    price
+    quantity
+    order_amount
+    discount_amount
+    total_amount
+    tax
+
+shipping_partners
+
+tenants
+
+shipping_partners
+    id
+    tenant_id
+    driver
+    code
+    name
+    description
+    settings
+
+packages
+    id
+    tenant_id
+    order_id
+    warehouse_id
+    weight
+    length
+    width
+    height
+    cod
+    delivery_note
+    status
+    freight_bill
+    shipping_partner_id
+    creator_id
+
+package_skus
+    id
+    tenant_id
+    order_id
+    package_id
+    stock_id
+    sku_id
+    warehouse_id
+    warehouse_area_id
+    quantity

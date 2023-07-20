@@ -1,0 +1,49 @@
+name: CI
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch (Mx-123, v1.2.3)'
+        required: true
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get branch
+        id: branch
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]
+          then
+            echo "::set-output name=branch::${{ github.event.inputs.branch }}"
+          else
+            echo "::set-output name=branch::${{ github.ref_name }}"
+          fi
+    outputs:
+      branch: ${{ steps.branch.outputs.branch }}
+  ci:
+    needs: prepare
+    uses: gobiz-vinasat/devops-actions/.github/workflows/php.yml@master
+    with:
+      registry: asia-southeast1-docker.pkg.dev
+      repository: asia-southeast1-docker.pkg.dev/gobiz-vinasat/m28/backend
+      branch: ${{ needs.prepare.outputs.branch }}
+    secrets:
+      docker-username: _json_key
+      docker-password: ${{ secrets.GAR_JSON_KEY }}
+  success:
+    needs: [prepare, ci]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notification
+        uses: ghostoy/dingtalk-action@master
+        with:
+          webhook: https://oapi.dingtalk.com/robot/send?access_token=${{ secrets.DINGTALK_TOKEN }}
+          msgtype: markdown
+          content: |
+            {
+              "title": "Build CI ${{ needs.prepare.outputs.branch }} thành công",
+              "text": "FBU: **[${{ github.actor }}](https://github.com/${{ github.actor }})** đã build CI **${{ github.repository }}** branch **${{ needs.prepare.outputs.branch }}** thành công"
+            }

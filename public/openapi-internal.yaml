@@ -1,0 +1,546 @@
+openapi: 3.0.0
+servers:
+  - url: http://dev-2-api.m28.gobizdev.com/internal
+    description: m28 Internal API
+info:
+  description: This is a m28 Internal API
+  version: "1.0.0"
+  title: m28 Internal API
+  contact:
+    email: vuduythanh@gobiz.vn
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+tags:
+  - name: orders
+    description: Module orders calls
+  - name: purchasing_packages
+    description: Module purchasing_packages calls
+  - name: sellers
+    description: Module sellers calls
+
+paths:
+  /sellers/{username}/refund:
+    post:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - sellers
+      summary: refund for seller
+      operationId: sellerRefund
+      parameters:
+        - in: query
+          name: username
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - amount
+              properties:
+                amount:
+                  type: number
+                description:
+                  type: string
+                ticketCode:
+                  type: string
+                financialAccount:
+                  type: string
+                reason:
+                  type: string
+                memo:
+                  type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  chua_define_data_response:
+                    type: string
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  data:
+                    type: object
+
+  /orders/{code}:
+    get:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - orders
+      summary: order detail
+      operationId: orderDetail
+      parameters:
+        - in: query
+          name: code
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  order:
+                    $ref: '#/components/schemas/orderM3'
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  data:
+                    type: object
+
+  /purchasing_packages/{code}:
+    get:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - purchasing_packages
+      summary: purchasing package detail
+      operationId: purchasingPackageDetail
+      parameters:
+        - in: query
+          name: code
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  purchasing_package:
+                    $ref: '#/components/schemas/purchasingPackageM3'
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  data:
+                    type: object
+  /sellers:
+    get:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - sellers
+      summary: list of sellers
+      operationId: sellerIndex
+      description: sellerIndex
+      parameters:
+        - in: query
+          name: username
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+                  merchants:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Merchant'
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+
+
+  /sellers/{username}:
+    get:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - sellers
+      summary: seller detail
+      operationId: sellerDetail
+      parameters:
+        - in: query
+          name: code
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  merchant:
+                    $ref: '#/components/schemas/Merchant'
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  data:
+                    type: object
+
+components:
+  securitySchemes:
+    Authorization:
+      in: header
+      name: Authorization
+      type: apiKey
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    orderM3:
+      type: object
+      properties:
+        id:
+          type: number
+        code:
+          type: string
+        status:
+          type: string
+        order_amount:
+          type: number
+        discount_amount:
+          type: number
+        total_amount:
+          type: number
+        paid_amount:
+          type: number
+        cod:
+          type: number
+        finance_status:
+          type: number
+        cod_fee_amount:
+          type: number
+        service_amount:
+          type: number
+        amount_paid_to_seller:
+          type: number
+        finance_service_status:
+          type: string
+        service_import_return_goods_amount:
+          type: number
+        finance_service_import_return_goods_status:
+          type: string
+        receiver_name:
+          type: string
+        receiver_phone:
+          type: string
+        receiver_address:
+          type: string
+        receiver_note:
+          type: string
+        freight_bill:
+          type: string
+        created_at:
+          type: string
+        updated_at:
+          type: string
+        merchant:
+          $ref: '#/components/schemas/Merchant'
+        shipping_partner:
+          $ref: '#/components/schemas/ShippingPartner'
+        tracking_bills:
+          type: array
+          items:
+            $ref: '#/components/schemas/FreightBill'
+
+    FreightBill:
+      type: object
+      properties:
+        freight_bill_code:
+          type: string
+        status:
+          type: string
+        receiver_name:
+          type: string
+        receiver_phone:
+          type: string
+        receiver_address:
+          type: string
+        fee:
+          type: string
+        cod_total_amount:
+          type: number
+        cod_paid_amount:
+          type: number
+        cod_fee_amount:
+          type: number
+        shipping_amount:
+          type: number
+        other_fee:
+          type: number
+
+    ShippingPartner:
+      type: object
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        description:
+          type: string
+        code:
+          type: string
+        logo:
+          type: string
+
+    purchasingPackage:
+      type: object
+      properties:
+        id:
+          type: number
+        code:
+          type: string
+        creator_id:
+          type: number
+        destination_warehouse_id:
+          type: number
+        finance_status:
+          type: string
+        freight_bill_code:
+          type: string
+        weight:
+          type: number
+        height:
+          type: number
+        width:
+          type: number
+        length:
+          type: number
+        merchant_id:
+          type: number
+        quantity:
+          type: number
+        service_amount:
+          type: number
+        status:
+          type: string
+        is_putaway:
+          type: boolean
+        imported_at:
+          type: string
+        created_at:
+          type: string
+        updated_at:
+          type: string
+
+    purchasingPackageM3:
+      type: object
+      properties:
+        id:
+          type: number
+        code:
+          type: string
+        creator_id:
+          type: number
+        destination_warehouse_id:
+          type: number
+        finance_status:
+          type: string
+        freight_bill_code:
+          type: string
+        weight:
+          type: number
+        height:
+          type: number
+        width:
+          type: number
+        length:
+          type: number
+        merchant_id:
+          type: number
+        quantity:
+          type: number
+        received_quantity:
+          type: number
+        service_amount:
+          type: number
+        status:
+          type: string
+        is_putaway:
+          type: boolean
+        imported_at:
+          type: string
+        created_at:
+          type: string
+        updated_at:
+          type: string
+        purchasing_package_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PurchasingPackageItem'
+        merchant:
+          $ref: '#/components/schemas/Merchant'
+        warehouse:
+          $ref: '#/components/schemas/Warehouse'
+        Services:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceM3'
+
+
+    PurchasingPackageItem:
+      type: object
+      properties:
+        id:
+          type: number
+        code:
+          type: string
+        name:
+          type: string
+        note:
+          type: string
+        purchasing_package_id:
+          type: number
+        quantity:
+          type: number
+        received_quantity:
+          type: number
+        sku:
+          $ref: '#/components/schemas/Sku'
+
+    Sku:
+      type: object
+      properties:
+        id:
+          type: number
+        code:
+          type: string
+        name:
+          type: string
+        weight:
+          type: number
+        height:
+          type: number
+        width:
+          type: number
+        length:
+          type: number
+        status:
+          type: string
+
+    Merchant:
+      type: object
+      properties:
+        id:
+          type: number
+        code:
+          type: string
+        name:
+          type: string
+        username:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+        ref:
+          type: string
+        description:
+          type: string
+        status:
+          type: boolean
+        created_at:
+          type: string
+        updated_at:
+          type: string
+
+    Warehouse:
+      type: object
+      properties:
+        id:
+          type: number
+        code:
+          type: string
+        name:
+          type: string
+        address:
+          type: string
+        status:
+          type: boolean
+    Pagination:
+      type: object
+      properties:
+        total:
+          type: integer
+
+    ServiceM3:
+      type: object
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+        service_prices:
+          type: array
+          items:
+            type: object
+            properties:
+              label:
+                type: string
+              price:
+                type: number
+              quantity:
+                type: number
+              amount:
+                type: number
+              skus:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    sku_id:
+                      type: number
+                    sku_name:
+                      type: string
+                    sku_code:
+                      type: string
+                    quantity:
+                      type: number
+
+
+
+

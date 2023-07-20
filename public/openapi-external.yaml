@@ -1,0 +1,915 @@
+openapi: 3.0.0
+servers:
+  - url: https://dev-1-api.m28.gobizdev.com/external
+    description: token 1
+  - url: https://dev-2-api.m28.gobizdev.com/external
+    description: token 2
+  - url: https://dev-3-api.m28.gobizdev.com/external
+    description: token 3
+  - url: https://api.m28.gobizdev.com/external
+    description: token staging
+  - url: http://localhost:28800/external
+    description: m28 External local API
+info:
+  description:
+    token1-eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczpcL1wvZGV2LTEtYXBpLm0yOC5nb2JpemRldi5jb20iLCJpYXQiOjE2NTM0NjM1MjQsImV4cCI6MTgxMTE0MzUyNCwibmJmIjoxNjUzNDYzNTI0LCJqdGkiOiIyZkhBc1JZMlVDa2dOQlNoIiwic3ViIjoyMSwicHJ2IjoiYmI2NWQ5YjhmYmYwZGE5ODI3YzhlZDIzMWQ5YzU0YzgxN2YwZmJiMiJ9.bZkm6sG7PjbCKPie0C7t-EMAn5zK1KZSpaUewqjW0D4
+    -----token2-eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczpcL1wvZGV2LTItYXBpLm0yOC5nb2JpemRldi5jb20iLCJpYXQiOjE2NTM0NjM2ODAsImV4cCI6MTgxMTE0MzY4MCwibmJmIjoxNjUzNDYzNjgwLCJqdGkiOiJzak5GT1Z1SUxTQThGZDhnIiwic3ViIjoyOSwicHJ2IjoiYmI2NWQ5YjhmYmYwZGE5ODI3YzhlZDIzMWQ5YzU0YzgxN2YwZmJiMiJ9.mNuX62cKxI11Uwefd7UTheAJtKCnawSKKrrE3tUceow
+    -----token3-eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczpcL1wvZGV2LTMtYXBpLm0yOC1rOHMuZ29iaXpkZXYuY29tIiwiaWF0IjoxNjUzNDYzNzM0LCJleHAiOjE4MTExNDM3MzQsIm5iZiI6MTY1MzQ2MzczNCwianRpIjoiTEZJTHVCR21UdGlibTdDOCIsInN1YiI6MzUsInBydiI6ImJiNjVkOWI4ZmJmMGRhOTgyN2M4ZWQyMzFkOWM1NGM4MTdmMGZiYjIifQ.HeUfYJS-7iCCtDHpwqWHGBA0wQzZ-IMkTFxBbJLSlj0
+    -----tokenstaging-eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczpcL1wvYXBpLm0yOC5nb2JpemRldi5jb20iLCJpYXQiOjE2NTQ1MDIzMTcsImV4cCI6MTgxMjE4MjMxNywibmJmIjoxNjU0NTAyMzE3LCJqdGkiOiI2QUxleHpyZXRwenVwSWhyIiwic3ViIjo0MiwicHJ2IjoiYmI2NWQ5YjhmYmYwZGE5ODI3YzhlZDIzMWQ5YzU0YzgxN2YwZmJiMiJ9.IZ6ZOLCuaOhp3shdUBY-klMl2rgPDv08RUXoCv3_qro
+  version: "1.0.0"
+  title: m28 External API
+  contact:
+    email: vuduythanh@gobiz.vn
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+tags:
+  - name: merchants
+    description: Module merchants calls
+
+paths:
+  /merchants:
+    post:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - merchants
+      summary: create a mechant
+      operationId: createMerchant
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - code
+                - password
+                - email
+                - location
+                - phone
+              properties:
+                code:
+                  type: string
+                password:
+                  type: string
+                email:
+                  type: string
+                phone:
+                  type: number
+                location:
+                  type: string
+                  example:
+                    vietnam|thailand
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  merchant:
+                    $ref: '#/components/schemas/Merchant'
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      domain:
+                        type: string
+                        example:
+                          exists
+                      username:
+                        type: string
+                        example:
+                          already_exist
+                      location:
+                        type: string
+                        example:
+                          invalid
+
+  /merchants/{merchant_code}/products:
+    post:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - merchants
+      summary: create a product
+      operationId: createProduct
+      parameters:
+        - in: path
+          name: merchant_code
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - password
+                - re_password
+                - email
+                - location
+              properties:
+                name:
+                  type: string
+                code:
+                  type: string
+                image:
+                  type: string
+                  format: binary
+                  example:
+                    base64image
+                weight:
+                  type: number
+                height:
+                  type: number
+                width:
+                  type: number
+                length:
+                  type: number
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  merchant:
+                    $ref: '#/components/schemas/Product'
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  data:
+                    type: object
+  /merchants/{merchant_code}/products/{product_code}:
+    get:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - merchants
+      summary: product detail
+      operationId: detailProduct
+      parameters:
+        - in: path
+          name: merchant_code
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: product_code
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  product:
+                    $ref: '#/components/schemas/Product'
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  data:
+                    type: object
+  /merchants/{merchant_code}/products/{product_code}/stocks:
+    get:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - merchants
+      summary: stock of a product
+      operationId: stockOfProduct
+      parameters:
+        - in: path
+          name: merchant_code
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: product_code
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stock:
+                    $ref: '#/components/schemas/Stock'
+                  warehouse:
+                    $ref: '#/components/schemas/Warehouse'
+                  warehouse_area:
+                    $ref: '#/components/schemas/WarehouseArea'
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  data:
+                    type: object
+  /merchants/{merchant_code}/orders:
+    post:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - merchants
+      summary: create a order
+      operationId: createOrder
+      parameters:
+        - in: path
+          name: merchant_code
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - code
+                - receiver_name
+                - receiver_address
+                - receiver_phone
+                - warehouse_code
+                - products
+              properties:
+                code:
+                  type: string
+                freight_bill:
+                  type: string
+                receiver_name:
+                  type: string
+                receiver_address:
+                  type: string
+                receiver_phone:
+                  type: string
+                warehouse_code:
+                  type: string
+                products:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      price:
+                        type: number
+                      quantity:
+                        type: number
+                      discount_amount:
+                        type: number
+                shipping_partner_code:
+                  type: string
+                discount_amount:
+                  type: number
+                total_amount:
+                  type: number
+                description:
+                  type: string
+                receiver_district_code:
+                  type: string
+                receiver_province_code:
+                  type: string
+                receiver_ward_code:
+                  type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  order:
+                    $ref: '#/components/schemas/Order'
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  data:
+                    type: object
+  /merchants/{merchant_code}/orders/{order_code}:
+    get:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - merchants
+      summary: order detail
+      operationId: detailOrder
+      parameters:
+        - in: path
+          name: merchant_code
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: order_code
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  order:
+                    $ref: '#/components/schemas/Order'
+                  products:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+                  services:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Service'
+                  shipping_partner:
+                    $ref: '#/components/schemas/ShippingPartner'
+                  freight_bills:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FreightBill'
+                  warehouse:
+                    $ref: '#/components/schemas/Warehouse'
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  data:
+                    type: object
+
+  /external/merchants/create-seller:
+    post:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - merchants
+      summary: create merchant from vela one
+      operationId: create merchant
+      parameters:
+        - in: path
+          name: user_name
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: name
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: status
+          required: true
+          schema:
+            type: boolean
+        - in: path
+          name: phone
+          required: false
+          schema:
+            type: string
+        - in: path
+          name: location
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Merchant'
+
+  /external/merchants/lis-seller:
+    get:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - merchants
+      summary: list seller
+      operationId: list seller
+      parameters:
+        - in: path
+          name: status
+          required: false
+          schema:
+            type: boolean
+        - in: path
+          name: name
+          required: false
+          schema:
+            type: string
+        - in: path
+          name: code
+          required: false
+          schema:
+            type: string
+        - in: path
+          name: location_id
+          required: false
+          schema:
+            type: integer
+        - in: path
+          name: ref
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Merchant'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+
+  /external/merchants/update-seller/{id}:
+    post:
+      security:
+        - bearerAuth: [ ]
+      summary: update seller
+      operationId: update seller
+      parameters:
+        - in: path
+          name: name
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: code
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: location_id
+          required: true
+          schema:
+            type: int
+        - in: path
+          name: ref
+          required: false
+          schema:
+            type: string
+        - in: path
+          name: username
+          required: false
+          schema:
+            type: string
+        - in: path
+          name: free_days_of_storage
+          required: false
+          schema:
+            type: number
+        - in: path
+          name: description
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Merchant'
+
+  /external/merchants/seller-detail/:
+    get:
+      security:
+        - bearerAuth: [ ]
+      summary: merchant detail
+      operationId: merchant detail
+      parameters:
+        -
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Merchant'
+
+  /external/warehouses:
+    get:
+      summary: warehouse list
+      operationId: warehouse list
+      parameters:
+        - in: path
+          name: include
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: country_id
+          required: false
+          schema:
+            type: number
+        - in: path
+          name: warehouses_code
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Merchant'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+
+  /external/stock:
+    get:
+      summary: list stock
+      operationId: list stock
+      parameters:
+        - in: path
+          name: include (sku,merchant,warehouse,warehouse_area)
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: sku_id
+          required: false
+          schema:
+            type: number
+        - in: path
+          name: sku_code
+          required: false
+          schema:
+            type: string
+        - in: path
+          name: sku_name
+          required: false
+          schema:
+            type: string
+        - in: path
+          name: warehouse_id
+          required: false
+          schema:
+            type: number
+        - in: path
+          name: warehouse_area_id
+          required: false
+          schema:
+            type: number
+        - in: path
+          name: out_of_stock
+          required: false
+          schema:
+            type: boolean
+        - in: path
+          name: merchant_id
+          required: false
+          schema:
+            type: number
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Stock'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+
+components:
+  securitySchemes:
+    Authorization:
+      in: header
+      name: Authorization
+      type: apiKey
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    Merchant:
+      type: object
+      properties:
+        id:
+          type: number
+        code:
+          type: string
+        name:
+          type: string
+        username:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+        location_id:
+          type: string
+        ref:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+        created_at:
+          type: string
+        updated_at:
+          type: string
+    Product:
+      type: object
+      properties:
+        code:
+          type: string
+        status:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        images:
+          type: string
+        image:
+          type: string
+        dropship:
+          type: string
+        weight:
+          type: string
+        height:
+          type: string
+        length:
+          type: string
+        created_at:
+          type: string
+        updated_at:
+          type: string
+    Stock:
+      type: object
+      properties:
+        id:
+          type: number
+        quantity:
+          type: number
+        real_quantity:
+          type: number
+        total_storage_fee:
+          type: string
+        created_at:
+          type: string
+        updated_at:
+          type: string
+    Order:
+      type: object
+      properties:
+        code:
+          type: string
+        status:
+          type: string
+        order_amount:
+          type: string
+        discount_amount:
+          type: string
+        shipping_amount:
+          type: string
+        total_amount:
+          type: string
+        paid_amount:
+          type: string
+        debit_amount:
+          type: string
+        receiver_name:
+          type: string
+        receiver_phone:
+          type: string
+        receiver_address:
+          type: string
+        receiver_note:
+          type: string
+        freight_bill:
+          type: string
+        cod:
+          type: string
+        finance_status:
+          type: string
+        service_amount:
+          type: string
+        amount_paid_to_seller:
+          type: string
+        finance_service_status:
+          type: string
+        finance_service_import_return_goods_status:
+          type: string
+        dropship:
+          type: number
+        inspected:
+          type: string
+        numberended_delivery_at:
+          type: string
+        description:
+          type: string
+        created_at:
+          type: string
+        updated_at:
+          type: string
+
+    Warehouse:
+      type: object
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        address:
+          type: string
+        status:
+          type: string
+
+    WarehouseArea:
+      type: object
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        movable:
+          type: string
+        status:
+          type: string
+
+    Service:
+      type: object
+      properties:
+        type:
+          type: string
+        code:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+
+    ShippingPartner:
+      type: object
+      properties:
+        name:
+          type: string
+        code:
+          type: string
+        logo:
+          type: string
+        status:
+          type: number
+
+    FreightBill:
+      type: object
+      properties:
+        freight_bill_code:
+          type: string
+        status:
+          type: string
+        receiver_name:
+          type: string
+        receiver_phone:
+          type: string
+        receiver_address:
+          type: string
+        sender_name:
+          type: string
+        sender_phone:
+          type: string
+        sender_address:
+          type: string
+        fee:
+          type: string
+        snapshots:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Snapshot'
+        created_at:
+          type: string
+        updated_at:
+          type: string
+        cod_total_amount:
+          type: string
+        cod_paid_amount:
+          type: string
+        cod_fee_amount:
+          type: string
+        shipping_amount:
+          type: string
+        other_fee:
+          type: string
+
+    Snapshot:
+      type: object
+      properties:
+        id:
+          type: number
+        code:
+          type: string
+        name:
+          type: string
+        price:
+          type: string
+        quantity:
+          type: number
+
+    Meta:
+      type: object
+      properties:
+        pagination:
+          type: object
+          properties:
+            total:
+              type: number
+            count:
+              type: number
+            per_page:
+              type: number
+            current_page:
+              type: number
+            total_pages:
+              type: number
+            links:
+              type: object
+              properties:
+                next:
+                  type: string
+
+

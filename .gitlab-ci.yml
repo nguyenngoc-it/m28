@@ -1,0 +1,16 @@
+include:
+  - project: dev-ops/ci-templates
+    ref: master
+    file: /php/php.yml
+
+.composer_install:
+  variables:
+    DOCKER_IMAGE: gobizdotvn/php-fpm:7.4.1
+  image: $DOCKER_IMAGE
+  stage: install
+  artifacts:
+    paths:
+      - vendor
+    expire_in: 1d
+  script:
+    - composer install

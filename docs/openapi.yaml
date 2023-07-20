@@ -1,0 +1,3429 @@
+openapi: "3.0.0"
+servers:
+  - url: http://localhost:28800
+    description: Local environment
+  - url: https://api.m28.gobizdev.com
+    description: Staging enviroment
+  - url: https://dev-1-api.m28.gobizdev.com
+    description: dev-1 enviroment
+  - url: https://dev-2-api.m28.gobizdev.com
+    description: dev-2 enviroment
+  - url: https://dev-3-api.m28.gobizdev.com
+    description: dev-3 enviroment
+info:
+  description: This is api docs of M28
+  version: "1.0.0"
+  title: Api docs of M28
+  contact:
+    email: vuduythanh@gobiz.vn
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+
+tags:
+  - name: orders
+    description: Đơn hàng
+  - name: order-packings
+    description: Yêu cầu đóng hàng
+  - name: order-exportings
+    description: Yêu cầu xuất hàng
+  - name: documents
+    description: Chứng từ
+  - name: document-packings
+    description: Chứng từ đóng hàng
+  - name: document-exportings
+    description: Chứng từ xuất hàng
+  - name: document-exporting-inventories
+    description: Chứng từ đối soát phiếu xuất
+  - name: products
+    description: Sản phẩm
+  - name: purchasing-managers
+    description: Quản lý mua hàng
+  - name: purchasing-orders
+    description: Đơn hàng nhập
+  - name: merchants
+    description: Vendors
+  - name: document-sku-inventories
+    description: Chứng từ kiểm kê hàng trong kho
+  - name: document-importing-return-goods
+    description: Chứng từ nhập hàng hoàn
+  - name: users
+    description: Nhân viên
+  - name: stocks
+    description: Module stocks calls
+  - name: services
+    description: Module services calls
+  - name: picking-sessions
+    description: Module picking-sessions
+  - name: purchasing-packages
+    description: Kiện nhập
+  - name: stocks
+    description: Tồn kho
+
+paths:
+
+  /users/{id}/countries:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - users
+      summary: Cập nhật thị trường user quản lý
+      operationId: userCountries
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: number
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                country_ids:
+                  type: array
+                  items:
+                    type: number
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: 'INPUT_INVALID'
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /picking-sessions/processing-picking-session:
+    get:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - picking-sessions
+      summary: Tìm phiên nhặt hàng chưa kết thúc của user hiện tại
+      operationId: pickingSessionProcessingPickingSession
+      parameters:
+        - in: query
+          name: warehouse_id
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: string
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /stocks/change-position-stocks:
+    post:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - stocks
+      summary: change position stock
+      operationId: stockChangeWarehouseArea
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - warehouse_id
+                - warehouse_area_id
+                - stocks
+              properties:
+                warehouse_id:
+                  type: number
+                warehouse_area_id:
+                  type: number
+                stocks:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      stock_id:
+                        type: number
+                      quantity:
+                        type: number
+                      warehouse_area_id:
+                        type: number
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: string
+
+  /services:
+    post:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - services
+      summary: Tạo dịch vụ
+      operationId: serviceCreate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - country_id
+                - type
+                - code
+                - name
+              properties:
+                country_id:
+                  type: number
+                type:
+                  type: string
+                  example:
+                    'IMPORT|EXPORT|TRANSPORT|IMPORTING_RETURN_GOODS|STORAGE|EXTENT'
+                code:
+                  type: string
+                name:
+                  type: string
+                auto_price_by:
+                  type: string
+                  example:
+                    'SIZE|VOLUME|SELLER'
+                status:
+                  type: string
+                  example:
+                    'ACTIVE|INACTIVE'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  service_price:
+                    type: object
+
+  /services/{service_id}/service-prices:
+    post:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - services
+      summary: Tạo đơn giá dịch vụ
+      operationId: serviceCreateServicePrice
+      parameters:
+        - in: path
+          name: service_id
+          schema:
+            type: number
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - label
+                - price
+              properties:
+                label:
+                  type: string
+                price:
+                  type: number
+                yield_price:
+                  type: number
+                note:
+                  type: string
+                height:
+                  type: number
+                width:
+                  type: number
+                length:
+                  type: number
+                volume:
+                  type: number
+                seller_codes:
+                  type: array
+                  items:
+                    type: string
+                seller_refs:
+                  type: array
+                  items:
+                    type: string
+                deduct:
+                  type: number
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  service_price:
+                    type: object
+
+  /stocks/export-storage-fees:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - stocks
+      summary: Download danh sách phí lưu kho sku theo ngày
+      operationId: stockExportStorageFee
+      parameters:
+        - in: query
+          name: merchant_id
+          schema:
+            type: number
+        - in: query
+          name: warehouse_id
+          schema:
+            type: number
+        - in: query
+          name: closing_time[from]
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+              example:
+                "2021-07-07"
+        - in: query
+          name: closing_time[to]
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+              example:
+                "2021-07-07"
+
+      responses:
+        '200':
+          description: OK
+          content:
+            application/vnd.ms-excel:
+              schema:
+                type: string
+                format: binarydownlao
+
+  /purchasing-packages/{id}/add-items:
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - purchasing-packages
+      summary: Thêm sản phẩm cho kiện nhập
+      operationId: purchasingPackageAddItems
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - package_items
+              properties:
+                package_items:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      sku_id:
+                        type: number
+                      quantity:
+                        type: number
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /document-importing-return-goods/scan:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - document-importing-return-goods
+      summary: Quét nhập hàng hoàn
+      operationId: document-importing-return-goods-scan
+      parameters:
+        - in: query
+          name: warehouse_id
+          required: true
+          schema:
+            type: number
+        - in: query
+          name: barcode_type
+          schema:
+            type: string
+            example:
+              "FREIGHT_BILL|ORDER_CODE"
+        - in: query
+          name: barcode
+          schema:
+            type: string
+
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  document_importing_return_goods:
+                    type: object
+                    properties:
+                      freight_bill:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          code:
+                            type: string
+                          status:
+                            type: string
+                      order:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          code:
+                            type: string
+                      skus:
+                        type: array
+                        items:
+                          type: object
+                          example:
+                            "{code: xxx, quantity: 111, product_id:12}"
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  warehouse_id:
+                    type: string
+                    example:
+                      "exists"
+                  barcode_type:
+                    type: string
+                    example:
+                      "valid"
+                  freight_bill:
+                    type: string
+                    example:
+                      "exists,status_invalid,has_processing_importing,has_finished_importing"
+  /document-importing-return-goods:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - document-importing-return-goods
+      summary: Tạo chứng từ nhập hàng hoàn
+      operationId: document-importing-return-goods-create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                warehouse_id:
+                  type: integer
+                barcode_type:
+                  type: string
+                object_ids:
+                  type: array
+                  items:
+                    type: integer
+                skus:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      received_quantity:
+                        type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  document:
+                    $ref: '#/components/schemas/Document'
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  warehouse_id:
+                    type: string
+                    example:
+                      "exists"
+                  warehouse_area_id:
+                    type: string
+                    example:
+                      "exists"
+
+  /merchants/suggest:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - merchants
+      summary: Danh sách gợi ý vendors
+      operationId: merchants-suggest
+      parameters:
+        - in: query
+          name: assigned
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  merchants:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Merchant'
+
+  /purchasing-orders:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - purchasing-orders
+      summary: Danh sách đơn hàng mua
+      operationId: purchasing-orders-index
+      parameters:
+        - in: query
+          name: tab_vendor
+          schema:
+            type: boolean
+        - in: query
+          name: code
+          schema:
+            type: integer
+        - in: query
+          name: merchant_id
+          schema:
+            type: integer
+        - in: query
+          name: purchasing_account_id
+          schema:
+            type: string
+            example:
+              "ORDER_CODE"
+        - in: query
+          name: marketplace
+          schema:
+            type: string
+            example:
+              "1688"
+        - in: query
+          name: supplier
+          schema:
+            type: string
+        - in: query
+          name: total_value[from][to]
+          schema:
+            type: array
+            items:
+              type: number
+        - in: query
+          name: ordered_at[from][to]
+          schema:
+            type: array
+            items:
+              type: string
+              example:
+                "2021-07-07 01:01:01"
+        - in: query
+          name: status
+          schema:
+            type: string
+            example:
+              "TRANSPORTING"
+        - in: query
+          name: sku_code
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  purchasing_orders:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PurchasingOrder'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+  /purchasing-orders/{id}:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - purchasing-orders
+      summary: Chi tiết đơn hàng mua
+      operationId: purchasing-orders-detail
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  purchasing_order:
+                    $ref: '#/components/schemas/PurchasingOrderDetail'
+
+  /purchasing-orders/{id}/purchasing-variants/{variantid}/mapping:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - purchasing-orders
+      summary: Cập nhật sku cho sản phẩm của đơn
+      operationId: purchasing-order-purchasingVariantMapping
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: variantid
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sku_id:
+                  required: true
+                  type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  purchasing_variant:
+                    $ref: '#/components/schemas/PurchasingVariant'
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  purchasing_order:
+                    type: string
+                    example:
+                      "exists"
+                  purchasing_variant:
+                    type: string
+                    example:
+                      "exists"
+                  sku:
+                    type: string
+                    example:
+                      "exists"
+
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - purchasing-managers
+      summary: Danh sách tài khoản mua hàng
+      operationId: purchasing-account-index
+      parameters:
+        - in: query
+          name: merchant_id
+          schema:
+            type: integer
+        - in: query
+          name: username
+          schema:
+            type: string
+        - in: query
+          name: purchasing_service_id
+          schema:
+            type: integer
+        - in: query
+          name: status
+          schema:
+            type: string
+            example:
+              "deactive"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  purchasing_accounts:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PurchasingAccount'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+  /purchasing-managers/purchasing-accounts:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - purchasing-managers
+      summary: Kết nối tài khoản mua hàng
+      operationId: purchasing-accounts-create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                purchasing_service_id:
+                  required: true
+                  type: integer
+                merchant_id:
+                  type: integer
+                username:
+                  type: string
+                password:
+                  type: string
+                pin_code:
+                  type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  purchasing_account:
+                    $ref: '#/components/schemas/PurchasingAccount'
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  username:
+                    type: string
+                    example:
+                      "already_exist"
+                  username_password:
+                    type: string
+                    example:
+                      "invalid"
+                  purchasing_service:
+                    type: string
+                    example:
+                      "exists"
+                  merchant:
+                    type: string
+                    example:
+                      "exists"
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - purchasing-managers
+      summary: Danh sách tài khoản mua hàng
+      operationId: purchasing-account-index
+      parameters:
+        - in: query
+          name: merchant_id
+          schema:
+            type: integer
+        - in: query
+          name: username
+          schema:
+            type: string
+        - in: query
+          name: purchasing_service_id
+          schema:
+            type: integer
+        - in: query
+          name: status
+          schema:
+            type: string
+            example:
+              "deactive"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  purchasing_accounts:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PurchasingAccount'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+  /purchasing-managers/purchasing-services/suggest:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - purchasing-managers
+      summary: Danh sách gợi ý dịch vụ mua hàng
+      operationId: purchasing-service-suggest
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  purchasing_services:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PurchasingService'
+
+  /purchasing-managers/purchasing-accounts/suggest:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - purchasing-managers
+      summary: Danh sách gợi ý tài khoản mua hàng
+      operationId: purchasing-account-suggest
+      parameters:
+        - in: query
+          name: assigned
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  purchasing_accounts:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PurchasingAccount'
+
+  /purchasing-managers/purchasing-accounts/{id}:
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - purchasing-managers
+      summary: Cập nhật thông tin tài khoản mua hàng
+      operationId: purchasing-accounts-update
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+                pin_code:
+                  type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  purchasing_account:
+                    $ref: '#/components/schemas/PurchasingAccount'
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example:
+                      "exists"
+                  username_password:
+                    type: string
+                    example:
+                      "invalid"
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - purchasing-managers
+      summary: Xoá tài khoản mua hàng
+      operationId: purchasing-accounts-delete
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      responses:
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example:
+                      "exists"
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  purchasing_account:
+                    $ref: '#/components/schemas/PurchasingAccount'
+
+  /purchasing-managers/purchasing-accounts/{id}/balance:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - purchasing-managers
+      summary: Lấy số dư tài khoản của 1 account mua hàng
+      operationId: purchasing-account-balance
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  balance:
+                    type: number
+
+  /products:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - products
+      summary: Danh sách sản phẩm
+      operationId: products-index
+      parameters:
+        - in: query
+          name: code
+          schema:
+            type: string
+        - in: query
+          name: name
+          schema:
+            type: string
+        - in: query
+          name: merchant_id
+          schema:
+            type: number
+        - in: query
+          name: category_id
+          schema:
+            type: number
+        - in: query
+          name: status
+          schema:
+            type: string
+        - in: query
+          name: unit_id
+          schema:
+            type: number
+        - in: query
+          name: ubox_product_code
+          schema:
+            type: string
+        - in: query
+          name: created_at[from][to]
+          schema:
+            type: array
+            items:
+              type: string
+              example:
+                "2021-07-07 01:01:01"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  products:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+  /products/download-ref-skus:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - products
+      summary: Download danh sách mã loại sản phẩm theo danh sách sản phẩm
+      operationId: products-download-ref-skus
+      parameters:
+        - in: query
+          name: ids
+          schema:
+            type: array
+            items:
+              type: number
+        - in: query
+          name: code
+          schema:
+            type: string
+        - in: query
+          name: name
+          schema:
+            type: string
+        - in: query
+          name: merchant_id
+          schema:
+            type: number
+        - in: query
+          name: category_id
+          schema:
+            type: number
+        - in: query
+          name: status
+          schema:
+            type: string
+        - in: query
+          name: unit_id
+          schema:
+            type: number
+        - in: query
+          name: ubox_product_code
+          schema:
+            type: string
+        - in: query
+          name: created_at[from][to]
+          schema:
+            type: array
+            items:
+              type: string
+              example:
+                "2021-07-07 01:01:01"
+
+      responses:
+        '200':
+          description: OK
+          content:
+            application/vnd.ms-excel:
+              schema:
+                type: string
+                format: binarydownlao
+
+  /products/import-ref-skus:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - products
+      summary: Tải lên danh sách sku theo sản phẩm để cập nhật mã loại sản phẩm
+      operationId: products-import-ref-skus
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  product_code:
+                    type: string
+                    example:
+                      "not_exist"
+                  sku_code:
+                    type: string
+                    example:
+                      "not_exist"
+                  ref:
+                    type: string
+                    example:
+                      "already_exist"
+
+  /order-packings:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - order-packings
+      summary: Danh sách yêu cầu đóng hàng
+      operationId: order-packings-index
+      parameters:
+        - in: query
+          name: warehouse_id
+          required: true
+          schema:
+            type: number
+        - in: query
+          name: order_code
+          schema:
+            type: number
+        - in: query
+          name: status
+          schema:
+            type: string
+        - in: query
+          name: shipping_partner_id
+          schema:
+            type: number
+        - in: query
+          name: merchant_id
+          schema:
+            type: number
+        - in: query
+          name: receiver_name
+          schema:
+            type: string
+        - in: query
+          name: receiver_phone
+          schema:
+            type: string
+        - in: query
+          name: payment_type
+          schema:
+            type: string
+        - in: query
+          name: payment_method
+          schema:
+            type: string
+        - in: query
+          name: created_at[from][to]
+          schema:
+            type: array
+            items:
+              type: string
+              example:
+                "2021-07-07 01:01:01"
+        - in: query
+          name: intended_delivery_at[from][to]
+          schema:
+            type: array
+            items:
+              type: string
+              example:
+                "2021-07-07 01:01:01"
+
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  order_packings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OrderPacking'
+
+  /order-packings/download-list-items:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - order-packings
+      summary: Download danh sách sản phẩm
+      operationId: order-packings-download-list-items
+      parameters:
+        - in: query
+          name: ids
+          required: false
+          schema:
+            type: array
+            items:
+              type: number
+        - in: query
+          name: warehouse_id
+          required: true
+          schema:
+            type: number
+        - in: query
+          name: order_code
+          schema:
+            type: number
+        - in: query
+          name: status
+          schema:
+            type: string
+        - in: query
+          name: shipping_partner_id
+          schema:
+            type: number
+        - in: query
+          name: merchant_id
+          schema:
+            type: number
+        - in: query
+          name: receiver_name
+          schema:
+            type: string
+        - in: query
+          name: receiver_phone
+          schema:
+            type: string
+        - in: query
+          name: payment_type
+          schema:
+            type: string
+        - in: query
+          name: payment_method
+          schema:
+            type: string
+        - in: query
+          name: created_at[from][to]
+          schema:
+            type: array
+            items:
+              type: string
+              example:
+                "2021-07-07 01:01:01"
+        - in: query
+          name: intended_delivery_at[from][to]
+          schema:
+            type: array
+            items:
+              type: string
+              example:
+                "2021-07-07 01:01:01"
+
+      responses:
+        '200':
+          description: OK
+          content:
+            application/vnd.ms-excel:
+              schema:
+                type: string
+                format: binarydownlao
+
+  /order-exportings:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - order-exportings
+      summary: Danh sách yêu cầu xuất hàng
+      operationId: order-exportings-index
+      parameters:
+        - in: query
+          name: warehouse_id
+          required: true
+          schema:
+            type: number
+        - in: query
+          name: ids
+          required: true
+          schema:
+            type: array
+            items:
+              type: number
+        - in: query
+          name: sort_by_ids
+          required: false
+          schema:
+            type: boolean
+
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  order_exportings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OrderExporting'
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  warehouse_id:
+                    type: string
+                    example:
+                      "exists"
+                  ids:
+                    type: string
+                    example:
+                      "required"
+
+  /order-exportings/scan:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - order-exportings
+      summary: Quét nhập các yêu cầu xuất hàng để tạo chứng từ xuất hàng
+      operationId: order-exportings-scan
+      parameters:
+        - in: query
+          name: warehouse_id
+          required: true
+          schema:
+            type: number
+        - in: query
+          name: barcode_type
+          schema:
+            type: string
+            example:
+              "FREIGHT_BILL"
+        - in: query
+          name: barcode
+          schema:
+            type: string
+
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  order_exporting:
+                    $ref: '#/components/schemas/OrderExporting'
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  warehouse_id:
+                    type: string
+                    example:
+                      "exists"
+                  type:
+                    type: string
+                    example:
+                      "valid"
+                  barcode:
+                    type: string
+                    example:
+                      "required,exists"
+                  status:
+                    type: string
+                    example:
+                      "invalid"
+                  order:
+                    type: string
+                    example:
+                      "exists,warehouse_invalid,order_exporting_not_found"
+
+  /orders/{id}/sync:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - orders
+      summary: Đồng bộ thông tin đơn từ marketplace
+      operationId: orders-sync
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  order:
+                    $ref: '#/components/schemas/Order'
+        '400':
+          description: CANT_SYNC
+
+  /orders/import-freight-bill:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - orders
+      summary: Tải lên mã vận đơn cho yêu cầu đóng hàng/đơn hàng
+      operationId: order-import-freight-bill
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  required: true
+                warehouse_id:
+                  type: number
+                  required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  order_code:
+                    type: string
+                    example:
+                      "not_exist"
+                  order_packing:
+                    type: string
+                    example:
+                      "not_exist,duplicated,finished_without_freight_bill,finished_with_freight_bill"
+                  order_shipping_partner:
+                    type: string
+                    example:
+                      "required"
+                  user_merchant:
+                    type: string
+                    example:
+                      "invalid"
+                  shipping_partner_code:
+                    type: string
+                    example:
+                      "not_exist"
+
+  /merchant/orders/import-freight-bill:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - orders
+      summary: Tải lên mã vận đơn cho yêu cầu đóng hàng/đơn hàng
+      operationId: merchant-order-import-freight-bill
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  required: true
+                replace:
+                  type: boolean
+                  required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /merchant/orders/import-bash-order:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - orders
+      summary: Tạo đơn sau khi đã import file
+      operationId: merchantOrderImportBashOrder
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bash:
+                  type: string
+                  example:
+                    'valid|warning|both'
+                  required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /orders/export:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - orders
+      summary: Download danh sách đơn hàng bán
+      operationId: orders-export
+      parameters:
+        - in: query
+          name: ids
+          schema:
+            type: array
+            items:
+              type: number
+        - in: query
+          name: code
+          schema:
+            type: string
+        - in: query
+          name: merchant_id
+          schema:
+            type: number
+        - in: query
+          name: receiver_name
+          schema:
+            type: string
+        - in: query
+          name: receiver_phone
+          schema:
+            type: string
+        - in: query
+          name: status
+          schema:
+            type: string
+        - in: query
+          name: warehouse_id
+          schema:
+            type: number
+        - in: query
+          name: warehouse_area_id
+          schema:
+            type: string
+        - in: query
+          name: payment_type
+          schema:
+            type: string
+        - in: query
+          name: payment_method
+          schema:
+            type: string
+        - in: query
+          name: created_at[from][to]
+          schema:
+            type: array
+            items:
+              type: string
+              example:
+                "2021-07-07 01:01:01"
+        - in: query
+          name: intended_delivery_at[from][to]
+          schema:
+            type: array
+            items:
+              type: string
+              example:
+                "2021-07-07 01:01:01"
+
+      responses:
+        '200':
+          description: OK
+          content:
+            application/vnd.ms-excel:
+              schema:
+                type: string
+                format: binarydownlao
+
+  /orders/import-for-update:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - orders
+      summary: Tải lên danh sách đơn theo sản phẩm để cập nhật thông tin đơn
+      operationId: order-import-for-update
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  order:
+                    type: string
+                    example:
+                      "exists,status_invalid,receiver_country_invalid,receiver_province_invalid,receiver_district_invalid,receiver_ward_invalid"
+                  sku:
+                    type: string
+                    example:
+                      "exists"
+                  order_code:
+                    type: string
+                    example:
+                      "required"
+                  receiver_name:
+                    type: string
+                    example:
+                      "required"
+                  receiver_phone:
+                    type: string
+                    example:
+                      "required"
+                  receiver_country:
+                    type: string
+                    example:
+                      "required"
+                  receiver_province:
+                    type: string
+                    example:
+                      "required"
+                  receiver_district:
+                    type: string
+                    example:
+                      "required"
+                  receiver_address:
+                    type: string
+                    example:
+                      "required"
+                  skus:
+                    type: string
+                    example:
+                      "required"
+
+  /orders/import-for-confirm:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - orders
+      summary: Tải lên danh sách đơn để xác nhận thông tin đơn
+      operationId: order-import-for-confirm
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  order:
+                    type: string
+                    example:
+                      "exists,fail_when_auto_inspection,shipping_partner_not_found"
+
+  /document-packings/{id}:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - document-packings
+      summary: Chi tiết chứng từ đóng hàng
+      operationId: document-packings-detail
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+
+      responses:
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example:
+                      "exists"
+                  type:
+                    type: string
+                    example:
+                      "invalid"
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  document_packing:
+                    $ref: '#/components/schemas/DocumentPacking'
+                  order_packings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OrderPacking'
+
+  /document-exportings:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - document-exportings
+      summary: Danh sách chứng từ xuất hàng
+      operationId: document-exportings-index
+      parameters:
+        - in: query
+          name: warehouse_id
+          schema:
+            type: number
+        - in: query
+          name: code
+          schema:
+            type: string
+            example:
+              "ma_van_don/ma_don"
+        - in: query
+          name: status
+          schema:
+            type: string
+        - in: query
+          name: verifier_id
+          schema:
+            type: number
+        - in: query
+          name: verified_at[from][to]
+          schema:
+            type: array
+            items:
+              type: string
+              example:
+                "2021-07-07 01:01:01"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  document_exportings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DocumentExporting'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - document-exportings
+      summary: Tạo chứng từ xuất hàng
+      operationId: document-exportings-create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                document_packing:
+                  type: string
+                  example:
+                    "DH12345"
+                receiver_name:
+                  type: string
+                receiver_phone:
+                  type: string
+                receiver_license:
+                  type: string
+                partner:
+                  type: string
+                  example:
+                    "Giao hàng nhanh"
+                order_exporting_ids:
+                  required: true
+                  type: array
+                  items:
+                    type: number
+                warehouse_id:
+                  required: true
+                  type: number
+                barcode_type:
+                  type: string
+                  example:
+                    "FREIGHT_BILL"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  document_exporting:
+                    $ref: '#/components/schemas/DocumentExporting'
+                  order_exportings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OrderExporting'
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  document_packing:
+                    type: string
+                    example:
+                      "exists"
+                  order_packing_ids:
+                    type: string
+                    example:
+                      "required,invalid"
+
+  /document-exportings/checking-warnings:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - document-exportings
+      summary: Kiểm tra cảnh báo trước khi tạo chứng từ xuất
+      operationId: document-exportings-check-warning
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                document_packing:
+                  type: string
+                  example:
+                    "DH12345"
+                receiver_name:
+                  type: string
+                receiver_phone:
+                  type: string
+                receiver_license:
+                  type: string
+                partner:
+                  type: string
+                  example:
+                    "Giao hàng nhanh"
+                order_exporting_ids:
+                  required: true
+                  type: array
+                  items:
+                    type: number
+                warehouse_id:
+                  required: true
+                  type: number
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  invalid_order_exportings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OrderExporting'
+                  valid_order_exportings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OrderExporting'
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  document_packing:
+                    type: string
+                    example:
+                      "exists"
+                  order_packing_ids:
+                    type: string
+                    example:
+                      "required"
+
+  /document-exportings/{id}:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - document-exportings
+      summary: Chi tiết chứng từ xuất hàng
+      operationId: document-exportings-detail
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      responses:
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example:
+                      "exists"
+                  type:
+                    type: string
+                    example:
+                      "invalid"
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  document_exporting:
+                    $ref: '#/components/schemas/DocumentExporting'
+                  order_exportings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OrderExporting'
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - document-exportings
+      summary: Cập nhật thông tin (người nhận) chứng từ xuất hàng
+      operationId: document-exportings-update
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                receiver_name:
+                  type: string
+                receiver_phone:
+                  type: string
+                receiver_license:
+                  type: string
+                partner:
+                  type: string
+                  example:
+                    "Giao hàng nhanh"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  document_exporting:
+                    $ref: '#/components/schemas/DocumentExporting'
+                  order_exportings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OrderExporting'
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example:
+                      "exists"
+                  type:
+                    type: string
+                    example:
+                      "invalid"
+                  status:
+                    type: string
+                    example:
+                      "invalid"
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - document-exportings
+      summary: Huỷ chứng từ xuất hàng
+      operationId: document-exportings-delete
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      responses:
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example:
+                      "exists"
+                  type:
+                    type: string
+                    example:
+                      "invalid"
+                  status:
+                    type: string
+                    example:
+                      "invalid"
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  document_exporting:
+                    $ref: '#/components/schemas/DocumentExporting'
+                  order_exportings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OrderExporting'
+
+  /document-exporting-inventories:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - document-exporting-inventories
+      summary: Tạo chứng từ đối soát phiếu xuất
+      operationId: document-exporting-inventories-create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                document_id:
+                  required: true
+                  type: number
+                barcodes:
+                  description: "Ds mã quét"
+                  required: true
+                  type: array
+                  items:
+                    type: string
+                uncheck_barcodes:
+                  description: "DS mã quét của chứng từ chưa xác nhận đối soát"
+                  required: false
+                  type: array
+                  items:
+                    type: string
+
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  document_exporting_inventory:
+                    $ref: '#/components/schemas/DocumentExportingInventory'
+                  order_inventories:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OrderInventory'
+
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  document_id:
+                    type: string
+                    example:
+                      "exists"
+                  status:
+                    type: string
+                    example:
+                      "invalid"
+
+  /document-exporting-inventories/{id}:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - document-exporting-inventories
+      summary: Chi tiết chứng từ đối soát chứng từ xuất
+      operationId: document-exporting-inventories-detail
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+
+      responses:
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example:
+                      "exists"
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  document_exporting_inventory:
+                    $ref: '#/components/schemas/DocumentExportingInventory'
+                  order_inventories:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OrderInventory'
+
+  /document-sku-inventories:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - document-sku-inventories
+      summary: Danh sách chứng từ kiểm kê
+      operationId: document-sku-inventories-index
+      parameters:
+        - in: query
+          name: code
+          schema:
+            type: string
+        - in: query
+          name: status
+          schema:
+            type: string
+        - in: query
+          name: warehouse_id
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  document_sku_inventories:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DocumentSkuInventory'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - document-sku-inventories
+      summary: Tạo chứng từ kiểm kê hàng trong kho
+      operationId: document-sku-inventories-create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                warehouse_id:
+                  description: "Kho kiểm kê"
+                  required: true
+                  type: integer
+
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  document_sku_inventory:
+                    $ref: '#/components/schemas/DocumentSkuInventory'
+
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  warehouse_id:
+                    type: string
+                    example:
+                      "exists"
+  /document-sku-inventories/{id}:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - document-sku-inventories
+      summary: Chi tiết chứng từ kiểm kê hàng trong kho
+      operationId: document-sku-inventories-detail
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+
+      responses:
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example:
+                      "exists"
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  document_sku_inventory:
+                    $ref: '#/components/schemas/DocumentSkuInventory'
+                  sku_inventories:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SkuInventory'
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - document-sku-inventories
+      summary: Cập nhật thông tin chứng từ kiểm kê kho
+      operationId: document-sku-inventories-update
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sku_id:
+                  required: true
+                  type: integer
+                quantity:
+                  type: integer
+                  required: true
+                explain:
+                  type: string
+                note:
+                  type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  document_sku_inventory:
+                    $ref: '#/components/schemas/DocumentSkuInventory'
+                  sku_inventories:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SkuInventory'
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example:
+                      "exists,status_invalid"
+                  sku_inventory:
+                    type: string
+                    example:
+                      "exists"
+  /document-sku-inventories/{id}/scan:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - document-sku-inventories
+      summary: Quét kiểm kê 1 sản phẩm trong kho
+      operationId: document-sku-inventories-scan
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                barcode:
+                  type: string
+                barcode_type:
+                  type: string
+                  example:
+                    "SKU_CODE,SKU_REF"
+                quantity:
+                  type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  document_sku_inventory:
+                    $ref: '#/components/schemas/DocumentSkuInventory'
+                  sku_inventories:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SkuInventory'
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example:
+                      "exists,status_invalid"
+                  sku:
+                    type: string
+                    example:
+                      "exists"
+                  type:
+                    type: string
+                    example:
+                      "valid"
+                  barcode:
+                    type: string
+                    example:
+                      "required"
+  /document-sku-inventories/{id}/balanced:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - document-sku-inventories
+      summary: Cân bằng số lượng skus sau kiểm kê
+      operationId: document-sku-inventories-balance
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  document_sku_inventory:
+                    $ref: '#/components/schemas/DocumentSkuInventory'
+                  sku_inventories:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SkuInventory'
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example:
+                      "exists,status_invalid"
+                  type:
+                    type: string
+                    example:
+                      "invalid"
+  /document-sku-inventories/{id}/completed:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - document-sku-inventories
+      summary: Hoàn thành kiểm kê
+      operationId: document-sku-inventories-completed
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  document_sku_inventory:
+                    $ref: '#/components/schemas/DocumentSkuInventory'
+                  sku_inventories:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SkuInventory'
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example:
+                      "exists,status_invalid"
+                  type:
+                    type: string
+                    example:
+                      "invalid"
+  /document-sku-inventories/{id}/importing-skus:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - document-sku-inventories
+      summary: Nhập vào danh sách các sản phẩm kiểm kê kho
+      operationId: document-sku-inventories-importing-skus
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  document_sku_inventory:
+                    $ref: '#/components/schemas/DocumentSkuInventory'
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example:
+                      "exists"
+                  sku:
+                    type: string
+                    example:
+                      "exists"
+  /document-sku-inventories/{id}/scan-histories:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - document-sku-inventories
+      summary: Lịch sử quét kiểm kê của 1 chứng từ kiểm kê
+      operationId: document-sku-inventories-scan-histories
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+
+      responses:
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example:
+                      "exists"
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  inventory_scan_histories:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/InventoryScanHistory'
+
+  /document-exportings/{id}/export:
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - document-exportings
+      summary: Xuất kho chứng từ xuất hàng
+      operationId: document-exportings-export
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  document_exporting:
+                    $ref: '#/components/schemas/DocumentExporting'
+                  order_exportings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OrderExporting'
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example:
+                      "exists"
+                  type:
+                    type: string
+                    example:
+                      "invalid"
+                  status:
+                    type: string
+                    example:
+                      "invalid"
+
+  /marketplaces:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - marketplaces
+      summary: Danh sách marketplaces được hỗ trợ
+      operationId: marketplaces-index
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  marketplaces:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Marketplace'
+
+  /marketplaces/{code}/oauth-url:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - marketplaces
+      summary: Tạo url để kết nối đến 1 marketplace
+      operationId: marketplaces-oauth-url
+      parameters:
+        - in: path
+          name: code
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: merchant_id
+          schema:
+            type: number
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  marketplace_code:
+                    type: string
+                    example:
+                      "exists"
+                  merchant_id:
+                    type: string
+                    example:
+                      "exists"
+
+  /stores:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - stores
+      summary: Danh sách stores đã kết nối
+      operationId: stores-index
+      parameters:
+        - in: query
+          name: merchant_id
+          schema:
+            type: number
+        - in: query
+          name: marketplace_code
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stores:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        store:
+                          $ref: '#/components/schemas/Store'
+                        merchant:
+                          $ref: '#/components/schemas/Merchant'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+  /stores/{id}:
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - stores
+      summary: Xoá store
+      operationId: stores-delete
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  store:
+                    $ref: '#/components/schemas/Store'
+
+  /shipping-partners/{id}/stamps:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - shipping-partners
+      summary: Lấy url in tem của danh sách mã vận đơn
+      operationId: shipping-partner-stamps
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+        - in: query
+          name: freight_bill_codes
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    InventoryScanHistory:
+      type: object
+
+    DocumentSkuInventory:
+      $ref: '#/components/schemas/Document'
+    SkuInventory:
+      type: object
+      properties:
+        document_id:
+          type: integer
+        sku_id:
+          type: integer
+        quantity_in_stock:
+          type: integer
+        quantity_checked:
+          type: integer
+        quantity_balanced:
+          type: integer
+        explain:
+          type: string
+        sku:
+          $ref: '#/components/schemas/Sku'
+
+    PurchasingOrder:
+      type: object
+      properties:
+        tenant_id:
+          type: integer
+        purchasing_service_id:
+          type: integer
+        purchasing_account_id:
+          type: integer
+        code:
+          type: string
+        status:
+          type: string
+        marketplace:
+          type: string
+          example:
+            "taobao"
+        image:
+          type: string
+        supplier_code:
+          type: string
+        supplier_name:
+          type: string
+        supplier_url:
+          type: string
+        customer_username:
+          type: string
+        customer_name:
+          type: string
+        customer_phone:
+          type: string
+        customer_address:
+          type: string
+        receiver_name:
+          type: string
+        receiver_phone:
+          type: string
+        receiver_country_code:
+          type: string
+        receiver_city_code:
+          type: string
+        receiver_district_code:
+          type: string
+        receiver_ward_code:
+          type: string
+        receiver_address:
+          type: string
+        receiver_note:
+          type: string
+        ordered_quantity:
+          type: integer
+        purchased_quantity:
+          type: integer
+        received_quantity:
+          type: integer
+        currency:
+          type: string
+        exchange_rate:
+          type: number
+        original_total_value:
+          type: number
+        total_value:
+          type: number
+        total_fee:
+          type: number
+        grand_total:
+          type: number
+        ordered_at:
+          type: string
+        purchasing_account:
+          type: object
+          properties:
+            username:
+              type: string
+        purchasing_service:
+          properties:
+            name:
+              type: string
+            code:
+              type: string
+        sku_count:
+          type: integer
+        sku_matched:
+          type: integer
+        permission_views:
+          type: array
+          items:
+            type: string
+            example:
+              "mapping_sku"
+
+    PurchasingOrderDetail:
+      type: object
+      properties:
+        tenant_id:
+          type: integer
+        purchasing_service_id:
+          type: integer
+        purchasing_account_id:
+          type: integer
+        code:
+          type: string
+        status:
+          type: string
+        marketplace:
+          type: string
+          example:
+            "taobao"
+        image:
+          type: string
+        supplier_code:
+          type: string
+        supplier_name:
+          type: string
+        supplier_url:
+          type: string
+        customer_username:
+          type: string
+        customer_name:
+          type: string
+        customer_phone:
+          type: string
+        customer_address:
+          type: string
+        receiver_name:
+          type: string
+        receiver_phone:
+          type: string
+        receiver_country_code:
+          type: string
+        receiver_city_code:
+          type: string
+        receiver_district_code:
+          type: string
+        receiver_ward_code:
+          type: string
+        receiver_address:
+          type: string
+        receiver_note:
+          type: string
+        ordered_quantity:
+          type: integer
+        purchased_quantity:
+          type: integer
+        received_quantity:
+          type: integer
+        currency:
+          type: string
+        exchange_rate:
+          type: number
+        original_total_value:
+          type: number
+        total_value:
+          type: number
+        total_fee:
+          type: number
+        grand_total:
+          type: number
+        ordered_at:
+          type: string
+        purchasing_account:
+          type: object
+          properties:
+            username:
+              type: string
+        purchasing_service:
+          properties:
+            name:
+              type: string
+            code:
+              type: string
+        purchasing_order_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PurchasingOrderItem'
+        sku_count:
+          type: integer
+        sku_matched:
+          type: integer
+
+    PurchasingOrderItem:
+      type: object
+      properties:
+        purchasing_order_id:
+          type: integer
+        purchasing_variant_id:
+          type: integer
+        original_price:
+          type: number
+        price:
+          type: number
+        ordered_quantity:
+          type: integer
+        purchased_quantity:
+          type: integer
+        received_quantity:
+          type: integer
+        purchasing_variant:
+          $ref: '#/components/schemas/PurchasingVariant'
+
+    PurchasingVariant:
+      type: object
+      properties:
+        tenant_id:
+          type: integer
+        marketplace:
+          type: string
+        variant_id:
+          type: string
+        sku_id:
+          type: integer
+        code:
+          type: string
+        name:
+          type: string
+        image:
+          type: string
+        properties:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              value:
+                type: string
+        product_url:
+          type: string
+        product_image:
+          type: string
+        supplier_code:
+          type: string
+        supplier_name:
+          type: string
+        supplier_url:
+          type: string
+        spec_id:
+          type: string
+        sku:
+          $ref: '#/components/schemas/Sku'
+
+    PurchasingAccount:
+      type: object
+      properties:
+        merchant_id:
+          type: integer
+        purchasing_service_id:
+          type: integer
+        username:
+          type: string
+        status:
+          type: string
+          example:
+            "active"
+        creator_id:
+          type: integer
+        creator:
+          type: object
+          properties:
+            username:
+              type: string
+            name:
+              type: string
+        merchant:
+          type: object
+          properties:
+            code:
+              type: string
+            name:
+              type: string
+        purchasing_service:
+          type: object
+          properties:
+            code:
+              type: string
+            name:
+              type: string
+
+    Sku:
+      type: object
+      properties:
+        product_id:
+          type: integer
+        unit_id:
+          type: integer
+        category_id:
+          type: integer
+        code:
+          type: string
+        name:
+          type: string
+        ref:
+          type: string
+        product:
+          $ref: '#/components/schemas/Product'
+
+    PurchasingService:
+      type: object
+      properties:
+        tenant_id:
+          type: integer
+        name:
+          type: string
+        code:
+          type: string
+        base_uri:
+          type: string
+
+    Product:
+      type: object
+      properties:
+        product:
+          type: object
+        category:
+          type: object
+    Document:
+      type: object
+      properties:
+        tenant_id:
+          type: number
+        code:
+          type: string
+        type:
+          type: string
+          example:
+            "PACKING"
+        status:
+          type: string
+          example:
+            "DRAFT"
+        warehouse_id:
+          type: number
+        creator_id:
+          type: number
+        verifier_id:
+          type: number
+        verified_at:
+          type: string
+          example:
+            "2021-01-01 00:00:00"
+        info:
+          type: object
+          properties:
+            balanced_at:
+              type: string
+              example:
+                "2021-01-01 00:00:00"
+    DocumentImporting:
+      $ref: '#/components/schemas/Document'
+    DocumentPacking:
+      $ref: '#/components/schemas/Document'
+    DocumentExporting:
+      $ref: '#/components/schemas/Document'
+    DocumentExportingInventory:
+      $ref: '#/components/schemas/Document'
+    OrderPacking:
+      type: object
+      properties:
+        tenant_id:
+          type: number
+        order_id:
+          type: number
+        warehouse_id:
+          type: number
+        total_quantity:
+          type: number
+        total_quantity_packaged:
+          type: number
+        total_values:
+          type: number
+        status:
+          type: string
+          example:
+            "process"
+        status_order_exporting:
+          type: string
+          example:
+            "new"
+        order:
+          type: object
+          properties:
+            code:
+              type: string
+            receiver_name:
+              type: string
+            receiver_phone:
+              type: string
+            receiver_adress:
+              type: string
+        freight_bill:
+          type: string
+        merchant_code:
+          type: string
+        shippingPartner:
+          type: object
+          properties:
+            name:
+              type: string
+            code:
+              type: string
+        order_packing_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderPackingItem'
+    OrderExporting:
+      type: object
+      properties:
+        tenant_id:
+          type: number
+        order_id:
+          type: number
+        warehouse_id:
+          type: number
+        total_quantity:
+          type: number
+        total_quantity_packaged:
+          type: number
+        total_values:
+          type: number
+        status:
+          type: string
+          example:
+            "process"
+        order:
+          type: object
+          properties:
+            code:
+              type: string
+            receiver_name:
+              type: string
+            receiver_phone:
+              type: string
+            receiver_adress:
+              type: string
+        freight_bill:
+          type: string
+        shipping_partner:
+          type: object
+          properties:
+            id:
+              type: number
+            code:
+              type: string
+            name:
+              type: string
+        order_exporting_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderExportingItem'
+    OrderInventory:
+      type: object
+      properties:
+        barcode:
+          type: string
+        order_exporting_id:
+          type: number
+        order_exporting:
+          $ref: '#/components/schemas/OrderExporting'
+    OrderExportingItem:
+      type: object
+      properties:
+        order_exporting_id:
+          type: number
+        sku_id:
+          type: number
+        price:
+          type: number
+        quantity:
+          type: number
+        value:
+          type: number
+        sku:
+          type: object
+          properties:
+            code:
+              type: string
+            name:
+              type: string
+            product_id:
+              type: string
+    OrderPackingItem:
+      type: object
+      properties:
+        order_packing_id:
+          type: number
+        sku_id:
+          type: number
+        price:
+          type: number
+        quantity:
+          type: number
+        value:
+          type: number
+        sku:
+          type: object
+          properties:
+            code:
+              type: string
+            name:
+              type: string
+            product_id:
+              type: string
+    Marketplace:
+      type: object
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        connection_method:
+          type: string
+    Store:
+      type: object
+      properties:
+        id:
+          type: number
+        merchant_id:
+          type: number
+        marketplace_code:
+          type: string
+        marketplace_store_id:
+          type: string
+    Merchant:
+      type: object
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        code:
+          type: string
+    Order:
+      type: object
+      properties:
+        id:
+          type: number
+        code:
+          type: string
+    Pagination:
+      type: object
+      properties:
+        current_page:
+          type: number
+        page_total:
+          type: number
+        per_page:
+          type: number
+        total:
+          type: number

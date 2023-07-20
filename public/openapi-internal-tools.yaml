@@ -1,0 +1,463 @@
+openapi: 3.0.0
+servers:
+  - url: http://dev-1-api.m28.gobizdev.com/internal
+    description: m28 Internal API tools
+  - url: http://dev-2-api.m28.gobizdev.com/internal
+    description: m28 Internal API tools
+  - url: http://dev-3-api.m28.gobizdev.com/internal
+    description: m28 Internal API tools
+  - url: http://localhost:28800/internal
+    description: m28 Internal API tools
+info:
+  description: token_local-eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC9sb2NhbGhvc3Q6Mjc4MDAiLCJpYXQiOjE2NTU0MzA5OTAsImV4cCI6MTgxMzExMDk5MCwibmJmIjoxNjU1NDMwOTkwLCJqdGkiOiJaeVJlckNDUmlwbTZ4a25DIiwic3ViIjo0OCwicHJ2IjoiYmI2NWQ5YjhmYmYwZGE5ODI3YzhlZDIzMWQ5YzU0YzgxN2YwZmJiMiJ9.dDLcuLAbLvr7A4cU9gJUtCcOreJk2OgRwiZTkAeg9no---token1-eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczpcL1wvZGV2LTEtYXBpLm0yOC5nb2JpemRldi5jb20iLCJpYXQiOjE2NTQyNDA5NzMsImV4cCI6MTgxMTkyMDk3MywibmJmIjoxNjU0MjQwOTczLCJqdGkiOiJ2NnRoWUM2bEpMekFnMEZZIiwic3ViIjoyNSwicHJ2IjoiYmI2NWQ5YjhmYmYwZGE5ODI3YzhlZDIzMWQ5YzU0YzgxN2YwZmJiMiJ9.K_Rk4oPcCGqwUg1o9e-kCSNTGghVarhSN7C4_izmnKM---token2-eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczpcL1wvZGV2LTItYXBpLm0yOC5nb2JpemRldi5jb20iLCJpYXQiOjE2NTQyNDEwNjYsImV4cCI6MTgxMTkyMTA2NiwibmJmIjoxNjU0MjQxMDY2LCJqdGkiOiJMNlV3UUVQMDNyc1ppT05qIiwic3ViIjozMiwicHJ2IjoiYmI2NWQ5YjhmYmYwZGE5ODI3YzhlZDIzMWQ5YzU0YzgxN2YwZmJiMiJ9.Q6HcpLSdpuAWnajAPNbKg0at0rCn3gGVSTSe6bbwkQk---token3-eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczpcL1wvZGV2LTMtYXBpLm0yOC1rOHMuZ29iaXpkZXYuY29tIiwiaWF0IjoxNjU0MjQxMTI3LCJleHAiOjE4MTE5MjExMjcsIm5iZiI6MTY1NDI0MTEyNywianRpIjoiUE8zQUJTSHBXUGhzSnJNNiIsInN1YiI6MzYsInBydiI6ImJiNjVkOWI4ZmJmMGRhOTgyN2M4ZWQyMzFkOWM1NGM4MTdmMGZiYjIifQ.67mveZZGqdymmhjhZ0YIcZkgCKDKR9fb2HmPS0J8_9A
+  version: "1.0.0"
+  title: m28 Internal API tools
+  contact:
+    email: vuduythanh@gobiz.vn
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+tags:
+  - name: orders
+    description: Module orders calls
+  - name: shipping-partners
+    description: Module shipping partners calls
+  - name: products
+      description: Module products
+  - name: purchasing-packages
+      description: Module purchasing packages
+paths:
+  /orders/fix-stocks:
+    post:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - orders
+      summary: Sửa tồn do sai sót khi trừ tồn trên đơn
+      operationId: orderFixStock
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - tenant_code
+                - order_codes
+              properties:
+                tenant_code:
+                  type: string
+                order_codes:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  data:
+                    type: object
+  /orders/auto-inspection:
+    post:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - orders
+      summary: Tự động chọn lại vị trí kho xuất cho đơn hàng
+      operationId: orderAutoInspection
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - tenant_code
+                - order_codes
+              properties:
+                tenant_code:
+                  type: string
+                order_codes:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  inspected:
+                    type: array
+                    items:
+                      type: string
+                  un_inspected:
+                    type: array
+                    items:
+                      type: string
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  data:
+                    type: object
+  /orders/remove-stock:
+    post:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - orders
+      summary: Bỏ chọn vị trí kho xuất cho đơn hàng
+      operationId: orderRemoveStock
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - tenant_code
+                - order_codes
+              properties:
+                tenant_code:
+                  type: string
+                order_codes:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  data:
+                    type: object
+  /orders/update-order-packing:
+    post:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - orders
+      summary: Cập nhật thông tin order-packing
+      operationId: orderUpdateOrderPacking
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - tenant_code
+                - order_codes
+              properties:
+                tenant_code:
+                  type: string
+                order_codes:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  order_packings:
+                    type: array
+                    items:
+                      type: object
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  data:
+                    type: object
+
+  /orders/change-status:
+    post:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - orders
+      summary: Thay đổi trạng thái của đơn
+      operationId: orderChangeStatus
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - tenant_code
+                - order_codes
+                - next_status
+              properties:
+                tenant_code:
+                  type: string
+                order_codes:
+                  type: array
+                  items:
+                    type: string
+                next_status:
+                  type: string
+                  example:
+                    'WAITING_PROCESSING|WAITING_PICKING|WAITING_PACKING'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  changed:
+                    type: array
+                    items:
+                      type: string
+                  un_changed:
+                    type: array
+                    items:
+                      type: string
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  data:
+                    type: object
+
+  /orders/create-shopee-document:
+    post:
+      security:
+      - bearerAuth: [ ]
+      tags:
+      - orders
+      summary: Tạo document cho những đơn shopee
+      operationId: createShopeeDocument
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - tenant_code
+              - order_codes
+              properties:
+                tenant_code:
+                  type: string
+                order_codes:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  changed:
+                    type: array
+                    items:
+                      type: string
+                  un_changed:
+                    type: array
+                    items:
+                      type: string
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  data:
+                    type: object
+
+  /shipping-partners/{shipping_partner_code}/import-expected-transporting-prices:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - shipping-partners
+      summary: Import bảng phí vận chuyển dự kiến
+      operationId: shippingPartnerImportExpectedTransportingPrice
+      description: Import bảng phí vận chuyển dự kiến
+      parameters:
+        - in: path
+          required: true
+          name: shipping_partner_code
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - tenant_code
+                - file
+              properties:
+                tenant_code:
+                  type: string
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example:
+                      'sucess'
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /skus/{sku_code}/update:
+    post:
+      security:
+      - bearerAuth: []
+      tags:
+      - products
+      summary: Cập nhật tên biến thể
+      operationId: SkuUpdateName
+      description: Cập nhật tên biến thể
+      parameters:
+      - in: path
+        required: true
+        name: sku_code
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - tenant_code
+              - merchant_code
+              - name
+              properties:
+                tenant_code:
+                  type: string
+                merchant_code:
+                  type: string
+                name:
+                  type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example:
+                      'success'
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+  /purchasing-packages/{packageCode}/cancel:
+    post:
+      security:
+      - bearerAuth: []
+      tags:
+      - purchasing-packages
+      summary: Hủy kiện nhập
+      operationId: CancelPurchasingPackage
+      description: Hủy kiện nhập
+      parameters:
+      - in: path
+        required: true
+        name: packageCode
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - tenant_code
+              - merchant_code
+              properties:
+                tenant_code:
+                  type: string
+                merchant_code:
+                  type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example:
+                      'success'
+        '400':
+          description: INPUT_INVALID
+          content:
+            application/json:
+              schema:
+                type: object
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer

@@ -1,0 +1,13 @@
+<?php
+
+namespace Modules\Merchant\Services;
+
+class MerchantEvent
+{
+    const CREATE = 'MERCHANT.CREATE';
+    const UPDATE = 'MERCHANT.UPDATE';
+    const CHANGE_STATE = 'MERCHANT.CHANGE_STATE';
+    const CONNECT_SHOP_BASE = 'MERCHANT.CONNECT_SHOP_BASE';
+    const DISCONNECT_SHOP_BASE = 'MERCHANT.DISCONNECT_SHOP_BASE';
+    const EDIT_WALLET = 'MERCHANT.EDIT_WALLET';
+}

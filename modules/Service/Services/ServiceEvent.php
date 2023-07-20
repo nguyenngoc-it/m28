@@ -1,0 +1,23 @@
+<?php
+
+namespace Modules\Service\Services;
+
+class ServiceEvent
+{
+    const CREATE                = 'SERVICE.CREATE';
+    const UPDATE                = 'SERVICE.UPDATE';
+    const CHANGE_STATUS         = 'SERVICE.CHANGE_STATUS';
+    const IS_REQUIRED           = 'SERVICE.IS_REQUIRED'; // Đánh dấu dịch vụ bắt buộc
+    const CREATE_SERVICE_PRICE  = 'SERVICE_PRICE.CREATE';
+    const UPDATE_SERVICE_PRICE  = 'SERVICE_PRICE.UPDATE';
+    const DEFAULT_SERVICE_PRICE = 'SERVICE_PRICE.SET_DEFAULT';
+
+    const SERVICE_PACK_CREATE        = 'SERVICE_PACK:CREATE';
+    const SERVICE_PACK_UPDATE        = 'SERVICE_PACK:UPDATE';
+    const SERVICE_PACK_ADD_PRICE     = 'SERVICE_PACK:ADD_PRICE';
+    const SERVICE_PACK_REMOVE_PRICE  = 'SERVICE_PACK:REMOVE_PRICE';
+    const SERVICE_PACK_ADD_SELLER    = 'SERVICE_PACK:ADD_SELLER';
+    const SERVICE_PACK_REMOVE_SELLER = 'SERVICE_PACK:REMOVE_SELLER';
+
+    const SERVICE_COMBO_CREATE = 'SERVICE_COMBO:CREATE';
+}

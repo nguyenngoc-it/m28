@@ -1,0 +1,416 @@
+openapi: 3.0.0
+servers:
+  - url: http://localhost:28800
+    description: m28 Internal API
+  - url: https://dev-1-api.m28.gobizdev.com
+  - url: https://dev-2-api.m28.gobizdev.com
+  - url: https://dev-3-api.m28.gobizdev.com
+  - url: https://api.m28.gobizdev.com
+info:
+  description: This is a m28 local API
+  version: "1.0.0"
+  title: m28 local API
+  contact:
+    email: vuduythanh@gobiz.vn
+  license:
+    name: Apache 2.0
+    url: 'https://www.apache.org/licenses/LICENSE-2.0.html'
+tags:
+  - name: stocks
+    description: Module stocks calls
+  - name: services
+    description: Module services calls
+  - name: service-packs
+    description: Module service-packs
+  - name: service-combos
+    description: Module service-combos
+  - name: purchasing-packages
+    description: Module purchasingPackages calls
+
+paths:
+  /service-combos:
+    post:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - service-combos
+      summary: create a service combo
+      operationId: serviceComboCreate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                service_pack_id:
+                  type: number
+                  required: true
+                code:
+                  type: string
+                  required: true
+                name:
+                  type: string
+                  required: true
+                note:
+                  type: string
+                using_days:
+                  type: number
+                  required: true
+                using_skus:
+                  type: number
+                  required: true
+                suggest_price:
+                  type: number
+                  required: true
+                service_price_quotas:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      service_price_id:
+                        type: number
+                      quota:
+                        type: number
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  service_pack:
+                    type: object
+                  service_pack_prices:
+                    type: array
+                    items:
+                      type: object
+  /service-packs:
+    get:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - service-packs
+      summary: listing service pack
+      operationId: servicePackIndex
+      parameters:
+        - in: query
+          name: country_id
+          schema:
+            type: number
+        - in: query
+          name: paginate
+          schema:
+            type: boolean
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  service_packs:
+                    type: array
+                    items:
+                      type: object
+                  paginate:
+                    type: object
+
+    post:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - service-packs
+      summary: create a service pack
+      operationId: servicePackCreate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                country_id:
+                  type: number
+                  required: true
+                code:
+                  type: string
+                  required: true
+                name:
+                  type: string
+                  required: true
+                note:
+                  type: string
+                service_price_ids:
+                  type: array
+                  items:
+                    type: number
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  service_pack:
+                    type: object
+                  service_pack_prices:
+                    type: array
+                    items:
+                      type: object
+  /service-packs/{id}:
+    get:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - service-packs
+      summary: view a service pack
+      operationId: servicePackDetail
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: number
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  service_pack:
+                    type: object
+                  service_pack_prices:
+                    type: array
+                    items:
+                      type: object
+    put:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - service-packs
+      summary: update a service pack, add or remove price
+      operationId: servicePackUpdate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                note:
+                  type: string
+                service_price_ids:
+                  type: array
+                  items:
+                    type: number
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  service_pack:
+                    type: object
+                  service_pack_prices:
+                    type: array
+                    items:
+                      type: object
+  /service-packs/{id}/add-sellers:
+    post:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - service-packs
+      summary: add seller to a service pack
+      operationId: servicePackaddSeller
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: number
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                seller_ids:
+                  type: array
+                  items:
+                    type: number
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  service_pack:
+                    type: object
+                  service_pack_prices:
+                    type: array
+                    items:
+                      type: object
+
+
+  /stocks/change-position-stocks:
+    post:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - stocks
+      summary: change position stock
+      operationId: stockChangeWarehouseArea
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - warehouse_id
+                - warehouse_area_id
+                - stocks
+              properties:
+                warehouse_id:
+                  type: number
+                warehouse_area_id:
+                  type: number
+                stocks:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      stock_id:
+                        type: number
+                      quantity:
+                        type: number
+                      warehouse_area_id:
+                        type: number
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: string
+
+  /services:
+    post:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - services
+      summary: Tạo dịch vụ
+      operationId: serviceCreate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - country_id
+                - type
+                - code
+                - name
+              properties:
+                country_id:
+                  type: number
+                type:
+                  type: string
+                  example:
+                    'IMPORT|EXPORT|TRANSPORT|IMPORTING_RETURN_GOODS|STORAGE|EXTENT'
+                code:
+                  type: string
+                name:
+                  type: string
+                auto_price_by:
+                  type: string
+                  example:
+                    'SIZE|VOLUME|SELLER'
+                status:
+                  type: string
+                  example:
+                    'ACTIVE|INACTIVE'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  service_price:
+                    type: object
+
+  /services/{service_id}/service-prices:
+    post:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - services
+      summary: Tạo đơn giá dịch vụ
+      operationId: serviceCreateServicePrice
+      parameters:
+        - in: path
+          name: service_id
+          schema:
+            type: number
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - label
+                - price
+              properties:
+                label:
+                  type: string
+                price:
+                  type: number
+                yield_price:
+                  type: number
+                note:
+                  type: string
+                height:
+                  type: number
+                width:
+                  type: number
+                length:
+                  type: number
+                volume:
+                  type: number
+                seller_codes:
+                  type: array
+                  items:
+                    type: string
+                seller_refs:
+                  type: array
+                  items:
+                    type: string
+                deduct:
+                  type: number
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  service_price:
+                    type: object
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
